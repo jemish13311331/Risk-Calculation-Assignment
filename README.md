@@ -1,3 +1,16 @@
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/45c4e5ae-4e4e-4f90-b1a9-3fb474f33d6d" />
+
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/24692727-4029-4d3f-ac2c-3f1277e297cc" />
+
+
+https://www.loom.com/share/4b9da03d14834e86913d027d76266a6c
+
+
+
+
+
+
+
 # Blockchain Backend Engineer Take-Home Assignment
 
 ## Overview
