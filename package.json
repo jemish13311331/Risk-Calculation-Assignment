@@ -7,6 +7,7 @@
   "license": "MIT",
   "scripts": {
     "start": "node app.js",
+    "test": "node --test test/*.test.js",
     "start:eth": "ganache-cli -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
     "lint": "eslint api/ server/",
     "compile:contracts": "cd ethereum && truffle compile",

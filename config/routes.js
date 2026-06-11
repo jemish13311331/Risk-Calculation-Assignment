@@ -1,4 +1,9 @@
 module.exports = {
+  'POST /offers/risk-score': {
+    controller: 'RiskController',
+    action: 'calculateRiskScore'
+  },
+
   'POST /enlistments': {
     controller: 'PropertyEnlistmentController',
     action: 'createEnlistment'

@@ -1,27 +1,28 @@
-'use strict';
+"use strict";
 
-const express = require('express');
-const bodyParser = require('body-parser');
-const path = require('path');
-const asyncMiddleware = require('./utils').asyncMiddleware;
-const log = require('./logger');
-const middlewaresConfig = require('../config/middlewares');
+const express = require("express");
+const bodyParser = require("body-parser");
+const path = require("path");
+const asyncMiddleware = require("./utils").asyncMiddleware;
+const log = require("./logger");
+const middlewaresConfig = require("../config/middlewares");
 
-
-function returnPath(p, isStatic = false){
-  var pp = path.join((__dirname + '/..') + p);
+function returnPath(p, isStatic = false) {
+  var pp = path.join(__dirname + "/.." + p);
   // console.log("PATH -> " + pp);
   return isStatic ? express.static(pp) : pp;
 }
 
 module.exports = {
   createHandlers(app, routes, controllers, middlewares) {
-    app.use(bodyParser.json({limit: '10mb'}));
-    app.use(bodyParser.urlencoded({limit: '10mb', extended: true})); // for parsing application/x-www-form-urlencoded
+    app.use(bodyParser.json({ limit: "10mb" }));
+    app.use(bodyParser.urlencoded({ limit: "10mb", extended: true })); // for parsing application/x-www-form-urlencoded
 
     //  SETUP CLIENT ROUTES
-    app.use(returnPath('/client', true));
-    app.get('/client', (req, res) => res.sendFile(returnPath('/client/index.html')));
+    app.use(returnPath("/client", true));
+    app.get("/client", (req, res) =>
+      res.sendFile(returnPath("/client/index.html")),
+    );
 
     app.use((req, res, next) => {
       log.verbose(`HTTP Request :: Method: ${req.method}, Url: ${req.url}`);
@@ -30,12 +31,18 @@ module.exports = {
 
     // CORS support
     app.use((req, res, next) => {
-      res.header('Access-Control-Allow-Origin', '*');
-      res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+      res.header("Access-Control-Allow-Origin", "*");
+      res.header(
+        "Access-Control-Allow-Headers",
+        "Origin, X-Requested-With, Content-Type, Accept",
+      );
       next();
     });
 
-    let middlewareMap = _mapMiddlewaresToControllers(middlewares, middlewaresConfig);
+    let middlewareMap = _mapMiddlewaresToControllers(
+      middlewares,
+      middlewaresConfig,
+    );
 
     Object.keys(routes).forEach((routePath) => {
       let handleRoute = _getParsedRoute(routes[routePath], routePath);
@@ -43,9 +50,12 @@ module.exports = {
       if (_isRouteValidated(app, handleRoute, controllers)) {
         log.info(`Routes :: Route: "${routePath}" is loaded`);
 
-        _mapRouteAndApplyMiddleware(app, handleRoute,
+        _mapRouteAndApplyMiddleware(
+          app,
+          handleRoute,
           controllers[handleRoute.controller][handleRoute.action],
-          middlewareMap[handleRoute.controller]);
+          middlewareMap[handleRoute.controller],
+        );
       } else {
         process.exit(1); //eslint-disable-line
       }
@@ -55,17 +65,17 @@ module.exports = {
       log.error(error);
       res.status(500).send(error.message);
     });
-  }
+  },
 };
 
 function _getParsedRoute(route, routePath) {
-  let splitRoute = routePath.split(' ', 2);
+  let splitRoute = routePath.split(" ", 2);
 
   return {
     url: splitRoute[1],
     method: splitRoute[0].toLowerCase(),
     action: route.action,
-    controller: path.normalize(route.controller)
+    controller: path.normalize(route.controller),
   };
 }
 
@@ -76,7 +86,9 @@ function _isRouteValidated(app, route, controllers) {
   }
 
   if (!controllers[route.controller].hasOwnProperty(route.action)) {
-    log.error(`Routes :: Action: "${route.action}" in Controller: "${route.controller}" undefined`);
+    log.error(
+      `Routes :: Action: "${route.action}" in Controller: "${route.controller}" undefined`,
+    );
     return false;
   }
 
@@ -97,7 +109,7 @@ function _mapMiddlewaresToControllers(middlewares, config) {
       throw new Error(`Middleware should be an array`);
     }
 
-    return middlewareList.map(p => {
+    return middlewareList.map((p) => {
       let normalizedActionMiddleware = path.normalize(p);
 
       if (!middlewares[normalizedActionMiddleware]) {
@@ -107,14 +119,14 @@ function _mapMiddlewaresToControllers(middlewares, config) {
     });
   };
 
-  Object.keys(config).forEach(controller => {
+  Object.keys(config).forEach((controller) => {
     normalizedConfig[path.normalize(controller)] = config[controller];
   });
 
-  Object.keys(normalizedConfig).forEach(controller => {
+  Object.keys(normalizedConfig).forEach((controller) => {
     map[controller] = {};
 
-    Object.keys(normalizedConfig[controller]).forEach(action => {
+    Object.keys(normalizedConfig[controller]).forEach((action) => {
       const actionMiddleware = normalizedConfig[controller][action];
       map[controller][action] = requireMiddleware(actionMiddleware);
     });
@@ -123,13 +135,20 @@ function _mapMiddlewaresToControllers(middlewares, config) {
   return map;
 }
 
-function _mapRouteAndApplyMiddleware(app, route, controllerAction, controllerMiddlewareMap) {
+function _mapRouteAndApplyMiddleware(
+  app,
+  route,
+  controllerAction,
+  controllerMiddlewareMap,
+) {
   if (controllerMiddlewareMap) {
     let middleware = [];
 
-    Object.keys(controllerMiddlewareMap).forEach(action => {
-      if (action === '*' || route.action === action) {
-        middleware = middleware.concat(asyncMiddleware(controllerMiddlewareMap[action]));
+    Object.keys(controllerMiddlewareMap).forEach((action) => {
+      if (action === "*" || route.action === action) {
+        middleware = middleware.concat(
+          asyncMiddleware(controllerMiddlewareMap[action]),
+        );
       }
     });
 
